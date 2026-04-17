@@ -1,0 +1,77 @@
+# ═══════════════════════════════════════════════════════════════
+#  Project Antigravity — Application Configuration
+# ═══════════════════════════════════════════════════════════════
+
+spring:
+  application:
+    name: antigravity-charging-service
+
+  # ── H2 In-Memory Database (Development) ──
+  datasource:
+    url: jdbc:h2:mem:antigravitydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true           # H2 console at http://localhost:8080/h2-console
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  # ── JPA / Hibernate ──
+  jpa:
+    hibernate:
+      ddl-auto: update        # Auto-create/update tables from entities
+    show-sql: false            # Set to true for debugging SQL queries
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # ── Jackson JSON ──
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false   # ISO-8601 format for Instant
+    default-property-inclusion: non_null  # Skip null fields in JSON
+
+# ── Server ──
+server:
+  port: 8080
+
+# ── Actuator (health checks, metrics) ──
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# ═══════════════════════════════════════════════════════════════
+#  ML Service Configuration
+# ═══════════════════════════════════════════════════════════════
+
+ml-service:
+  url: ${ML_SERVICE_URL:http://localhost:5000}    # Python Flask ML API
+  timeout-ms: 2000              # HTTP call timeout
+
+# ═══════════════════════════════════════════════════════════════
+#  Buffer Factor Configuration
+# ═══════════════════════════════════════════════════════════════
+
+buffer:
+  default-factor: 1.15          # 15% buffer when no history exists
+  max-factor: 2.0               # Maximum 2x buffer cap
+
+# ═══════════════════════════════════════════════════════════════
+#  Logging
+# ═══════════════════════════════════════════════════════════════
+
+logging:
+  level:
+    com.antigravity: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN

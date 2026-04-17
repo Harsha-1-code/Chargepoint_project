@@ -1,0 +1,14 @@
+com\antigravity\model\ChargingSession.class
+com\antigravity\repository\ChargingSessionRepository.class
+com\antigravity\dto\PredictionResponse$PredictionResponseBuilder.class
+com\antigravity\exception\GlobalExceptionHandler.class
+com\antigravity\service\PredictionService.class
+com\antigravity\controller\HeartbeatController.class
+com\antigravity\service\BufferService.class
+com\antigravity\config\AppConfig.class
+com\antigravity\dto\HeartbeatRequest.class
+com\antigravity\dto\PredictionResponse.class
+com\antigravity\service\BufferService$BufferResult.class
+com\antigravity\dto\MlPredictionRequest.class
+com\antigravity\dto\MlPredictionResponse.class
+com\antigravity\AntigravityApplication.class

@@ -1,0 +1,41 @@
+# Verification and Bug Fix Plan
+
+This plan outlines the steps to verify the ML generation logic and training loop, and to fix the configuration errors in the Spring Boot service.
+
+## User Review Required
+
+> [!IMPORTANT]
+> I have identified that `PredictionService.java` is currently bypassing the `RestTemplate` configuration in `AppConfig.java`. I will fix this as part of the "AppConfig" fix.
+> 
+> I also noticed compilation errors in `HeartbeatController.java` related to Lombok. I will attempt to fix these by explicitly adding the Lombok annotation processor to the `pom.xml`.
+
+## Proposed Changes
+
+### [ML Model Scripts]
+
+#### [MODIFY] [generate_dataset.py](file:///c:/Users/harsh/OneDrive/Documents/Chargepoint_project/ml_model/generate_dataset.py)
+- Temporarily change `NUM_SESSIONS` to 100 to fulfill the user's request for a quick verification run.
+
+### [Spring Boot Service]
+
+#### [MODIFY] [AppConfig.java](file:///c:/Users/harsh/OneDrive/Documents/Chargepoint_project/spring-boot-service/src/main/java/com/antigravity/config/AppConfig.java)
+- Inject `ml-service.timeout-ms` from `application.yml` instead of hardcoding timeouts.
+
+#### [MODIFY] [PredictionService.java](file:///c:/Users/harsh/OneDrive/Documents/Chargepoint_project/spring-boot-service/src/main/java/com/antigravity/service/PredictionService.java)
+- Update constructor to inject the `RestTemplate` bean from `AppConfig` instead of creating a new one.
+
+#### [MODIFY] [pom.xml](file:///c:/Users/harsh/OneDrive/Documents/Chargepoint_project/spring-boot-service/pom.xml)
+- Add explicit `maven-compiler-plugin` configuration with Lombok annotation processor to resolve compilation errors in `HeartbeatController`.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+1. **ML Generation**: Run `python ml_model/generate_dataset.py` and verify it produces 100 sessions in `data/training_data.csv`.
+2. **Smoke Train**: Run `python ml_model/train.py --quick` and verify it completes successfully (10 epochs).
+3. **Spring Boot Compilation**: Run `mvn compile` (with refreshed environment) to verify all fixes and ensure the project builds correctly.
+
+### Manual Verification
+- Review the logs of the Maven build to ensure no more compilation errors.
+- Verify the generated CSV file exists and has 101 lines (including header).
