@@ -38,7 +38,7 @@ spring:
 
 # ── Server ──
 server:
-  port: 8080
+  port: ${PORT:7860}
 
 # ── Actuator (health checks, metrics) ──
 management:

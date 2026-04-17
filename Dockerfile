@@ -8,32 +8,36 @@ RUN mvn clean package -DskipTests
 # --- Final Stage (Python + Java Runtime) ---
 FROM python:3.11-slim-jammy
 
-# Install OpenJDK 21 Runtime (headless for smaller image)
+# 1. Install System Dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openjdk-21-jre-headless \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# 2. Set up User (Hugging Face Requirement: UID 1000)
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    ML_SERVICE_URL=http://localhost:5000
 
-# 1. Setup Python ML Service
-COPY ml_model/requirements.txt ./ml_model/
-RUN pip install --no-cache-dir -r ./ml_model/requirements.txt
-RUN pip install --no-cache-dir gunicorn
-COPY ml_model/ ./ml_model/
+WORKDIR $HOME/app
 
-# 2. Setup Spring Boot Service
-COPY --from=java-build /app/target/*.jar ./spring-boot-app.jar
+# 3. Setup Python ML Service
+COPY --chown=user:user ml_model/requirements.txt ./ml_model/
+RUN pip install --no-cache-dir --user -r ./ml_model/requirements.txt
+RUN pip install --no-cache-dir --user gunicorn
+COPY --chown=user:user ml_model/ ./ml_model/
 
-# 3. Setup Orchestration
-COPY start.sh .
+# 4. Setup Spring Boot Service
+COPY --chown=user:user --from=java-build /app/target/*.jar ./spring-boot-app.jar
+
+# 5. Setup Orchestration
+COPY --chown=user:user start.sh .
 RUN chmod +x start.sh
 
-# Expose only the Spring Boot port (Gateway)
-EXPOSE 8080
-
-# Environment variables
-ENV PYTHONUNBUFFERED=1
-ENV ML_SERVICE_URL=http://localhost:5000
+# Hugging Face default port
+EXPOSE 7860
 
 # Entrypoint
 CMD ["./start.sh"]
