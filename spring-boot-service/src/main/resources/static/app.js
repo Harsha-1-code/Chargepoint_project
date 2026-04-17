@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyBody = document.getElementById('historyBody');
 
     let history = []; // Array to store recent predictions
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // Prepare data
